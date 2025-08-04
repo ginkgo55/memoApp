@@ -11,9 +11,11 @@
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
+    "konva": "^9.3.22",
     "next": "15.4.5",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-konva": "^19.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

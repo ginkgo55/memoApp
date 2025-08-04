@@ -50,3 +50,47 @@ export async function createMemo(formData: FormData) {
   revalidatePath("/main");
   redirect("/main");
 }
+
+export async function updateMemo(formData: FormData) {
+  const id = formData.get("id") as string;
+  const title = formData.get("title") as string;
+  const drawing_data = formData.get("drawing_data") as string;
+
+  if (!id) {
+    throw new Error("Memo ID is required.");
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach((cookie) => cookieStore.set(cookie));
+          } catch {
+            // Server Actions can set cookies.
+          }
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return redirect("/auth/login");
+  }
+
+  const { error } = await supabase
+    .from("memos")
+    .update({ title, drawing_data: JSON.parse(drawing_data), updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) throw error;
+
+  revalidatePath(`/main/memo/${id}`);
+  revalidatePath("/main");
+}
