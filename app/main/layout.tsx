@@ -1,11 +1,15 @@
 import React from "react";
+import Header from "@/components/layouts/Header";
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // このレイアウトは今後、メイン機能で共通のヘッダーなどを配置するために使用します。
-  return <>{children}</>;
+  return (
+    <div>
+      <Header />
+      <main>{children}</main>
+    </div>
+  );
 }
-
