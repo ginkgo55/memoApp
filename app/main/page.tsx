@@ -34,10 +34,10 @@ export default async function MemosPage() {
 
   // セッション情報を取得。なければログインページにリダイレクト。
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     // ログインページもリファクタリング後のパスに修正
     redirect("/auth/login");
   }
@@ -46,7 +46,7 @@ export default async function MemosPage() {
   const { data: memos } = await supabase
     .from("memos")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   return (

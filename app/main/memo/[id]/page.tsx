@@ -32,10 +32,10 @@ async function getMemo(id: string) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/auth/login");
   }
 
@@ -43,7 +43,7 @@ async function getMemo(id: string) {
     .from("memos")
     .select("*")
     .eq("id", id)
-    .eq("user_id", session.user.id) // 自分のメモだけを取得
+    .eq("user_id", user.id) // 自分のメモだけを取得
     .single();
 
   if (error || !memo) {

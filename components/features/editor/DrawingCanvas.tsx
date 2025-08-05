@@ -7,17 +7,26 @@ import type { KonvaEventObject } from "konva/lib/Node";
 // 1本の線のデータを表現する型
 export type LineData = {
   points: number[];
-  // 今後、色や線の太さなどのプロパティを追加できます
+  color: string;
+  strokeWidth: number;
 };
 
 type DrawingCanvasProps = {
   initialData: LineData[] | null;
   onDrawChange: (data: LineData[]) => void;
+  color: string;
+  strokeWidth: number;
 };
 
-export default function DrawingCanvas({ initialData, onDrawChange }: DrawingCanvasProps) {
+export default function DrawingCanvas({
+  initialData,
+  onDrawChange,
+  color,
+  strokeWidth,
+}: DrawingCanvasProps) {
   const [lines, setLines] = useState<LineData[]>(initialData || []);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 500 });
+  // コンテナの高さに合わせて動的にサイズを調整
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const isDrawing = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +36,7 @@ export default function DrawingCanvas({ initialData, onDrawChange }: DrawingCanv
       if (containerRef.current) {
         setDimensions({
           width: containerRef.current.offsetWidth,
-          height: 500,
+          height: containerRef.current.offsetHeight,
         });
       }
     };
@@ -40,7 +49,7 @@ export default function DrawingCanvas({ initialData, onDrawChange }: DrawingCanv
     isDrawing.current = true;
     const pos = e.target.getStage()?.getPointerPosition();
     if (!pos) return;
-    setLines([...lines, { points: [pos.x, pos.y] }]);
+    setLines([...lines, { points: [pos.x, pos.y], color, strokeWidth }]);
   };
 
   const handleMouseMove = (e: KonvaEventObject<MouseEvent>) => {
@@ -64,10 +73,17 @@ export default function DrawingCanvas({ initialData, onDrawChange }: DrawingCanv
 
   return (
     <div ref={containerRef} className="w-full h-full">
-      <Stage width={dimensions.width} height={dimensions.height} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} className="bg-white border border-gray-300 rounded-md shadow-inner">
+      <Stage
+        width={dimensions.width}
+        height={dimensions.height}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        className="bg-white border border-gray-300 rounded-md shadow-inner"
+      >
         <Layer>
           {lines.map((line, i) => (
-            <Line key={i} points={line.points} stroke="black" strokeWidth={5} tension={0.5} lineCap="round" lineJoin="round" />
+            <Line key={i} points={line.points} stroke={line.color} strokeWidth={line.strokeWidth} tension={0.5} lineCap="round" lineJoin="round" />
           ))}
         </Layer>
       </Stage>

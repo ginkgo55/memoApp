@@ -94,3 +94,41 @@ export async function updateMemo(formData: FormData) {
   revalidatePath(`/main/memo/${id}`);
   revalidatePath("/main");
 }
+
+export async function deleteMemo(formData: FormData) {
+  const id = formData.get("id") as string;
+
+  if (!id) {
+    throw new Error("Memo ID is required for deletion.");
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach((cookie) => cookieStore.set(cookie));
+          } catch {
+            // Server Actions can set cookies.
+          }
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return redirect("/auth/login");
+  }
+
+  const { error } = await supabase.from("memos").delete().eq("id", id).eq("user_id", user.id);
+
+  if (error) throw error;
+
+  revalidatePath("/main");
+  redirect("/main");
+}
