@@ -10,7 +10,12 @@ type MemoDetailPageProps = {
   };
 };
 
-async function getMemo(id: string) {
+async function getMemo(params: { id: string }) {
+  // Next.js 15から、ページの`params`はPromiseのようなオブジェクトになりました。
+  // そのため、プロパティにアクセスする前に `await` で解決する必要があります。
+  // @ts-ignore - Next.jsの型定義がこの変更に追いついていないための一時的な措置です。
+  const { id } = await params;
+
   const cookieStore = await cookies();
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,7 +59,7 @@ async function getMemo(id: string) {
 }
 
 export default async function MemoDetailPage({ params }: MemoDetailPageProps) {
-  const memo = await getMemo(params.id);
+  const memo = await getMemo(params);
 
   return (
     <div>
