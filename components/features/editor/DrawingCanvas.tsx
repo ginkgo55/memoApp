@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef } from "react";
 import { Stage, Layer, Line } from "react-konva";
 import type { KonvaEventObject } from "konva/lib/Node";
+import type Konva from "konva";
 
 // 1本の線のデータを表現する型
 export type LineData = {
@@ -18,12 +19,8 @@ type DrawingCanvasProps = {
   strokeWidth: number;
 };
 
-export default function DrawingCanvas({
-  initialData,
-  onDrawChange,
-  color,
-  strokeWidth,
-}: DrawingCanvasProps) {
+const DrawingCanvas = forwardRef<Konva.Stage, DrawingCanvasProps>(
+  ({ initialData, onDrawChange, color, strokeWidth }, ref) => {
   const [lines, setLines] = useState<LineData[]>(initialData || []);
   // コンテナの高さに合わせて動的にサイズを調整
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -74,6 +71,7 @@ export default function DrawingCanvas({
   return (
     <div ref={containerRef} className="w-full h-full">
       <Stage
+        ref={ref}
         width={dimensions.width}
         height={dimensions.height}
         onMouseDown={handleMouseDown}
@@ -89,4 +87,7 @@ export default function DrawingCanvas({
       </Stage>
     </div>
   );
-}
+  }
+);
+DrawingCanvas.displayName = "DrawingCanvas";
+export default DrawingCanvas;

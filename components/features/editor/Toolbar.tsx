@@ -7,6 +7,7 @@ type ToolbarProps = {
   setColor: (color: string) => void;
   strokeWidth: number;
   setStrokeWidth: (width: number) => void;
+  onDownload: () => void;
 };
 
 const COLORS = ["#000000", "#FF0000", "#0000FF", "#008000", "#FFFF00", "#FFA500"];
@@ -17,6 +18,7 @@ export default function Toolbar({
   setColor,
   strokeWidth,
   setStrokeWidth,
+  onDownload,
 }: ToolbarProps) {
   return (
     <div className="p-2 bg-gray-200 rounded-md shadow-md flex items-center gap-4 flex-shrink-0">
@@ -54,6 +56,12 @@ export default function Toolbar({
           ))}
         </div>
       </div>
+      <button
+        onClick={onDownload}
+        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap flex-shrink-0"
+      >
+        ダウンロード
+      </button>
     </div>
   );
 }

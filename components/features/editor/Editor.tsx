@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition, Suspense } from "react";
+import { useState, useTransition, Suspense, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { Database } from "@/lib/database.types";
+import type Konva from "konva";
 import { updateMemo, deleteMemo } from "@/app/main/memo/actions";
 import type { LineData } from "./DrawingCanvas";
 import Toolbar from "./Toolbar";
@@ -26,6 +27,7 @@ export default function Editor({ memo }: EditorProps) {
   );
   const [color, setColor] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(5);
+  const stageRef = useRef<Konva.Stage>(null);
 
   const handleSave = () => {
     const formData = new FormData();
@@ -58,6 +60,22 @@ export default function Editor({ memo }: EditorProps) {
     });
   };
 
+  const handleDownload = () => {
+    const stage = stageRef.current;
+    if (!stage) {
+      return;
+    }
+
+    const dataURL = stage.toDataURL({ mimeType: "image/png" });
+
+    const link = document.createElement("a");
+    link.download = `${title || "memo"}.png`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-100px)]">
       <div className="p-4 bg-gray-100 border-b flex justify-between items-center gap-4">
@@ -72,6 +90,7 @@ export default function Editor({ memo }: EditorProps) {
           setColor={setColor}
           strokeWidth={strokeWidth}
           setStrokeWidth={setStrokeWidth}
+          onDownload={handleDownload}
         />
         <button onClick={handleSave} disabled={isPending} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
           {isPending ? "保存中..." : "保存"}
@@ -83,6 +102,7 @@ export default function Editor({ memo }: EditorProps) {
       <div className="flex-grow p-4 bg-gray-50">
         <Suspense fallback={<div className="w-full h-full bg-gray-200 animate-pulse rounded-md"></div>}>
           <DrawingCanvas
+            ref={stageRef}
             initialData={drawingData}
             onDrawChange={setDrawingData}
             color={color}
