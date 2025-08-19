@@ -8,6 +8,10 @@ type ToolbarProps = {
   strokeWidth: number;
   setStrokeWidth: (width: number) => void;
   onDownload: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
+  onRedo: () => void;
+  canRedo: boolean;
 };
 
 const COLORS = ["#000000", "#FF0000", "#0000FF", "#008000", "#FFFF00", "#FFA500"];
@@ -19,6 +23,10 @@ export default function Toolbar({
   strokeWidth,
   setStrokeWidth,
   onDownload,
+  onUndo,
+  canUndo,
+  onRedo,
+  canRedo,
 }: ToolbarProps) {
   return (
     <div className="p-2 bg-gray-200 rounded-md shadow-md flex items-center gap-4 flex-shrink-0">
@@ -55,6 +63,24 @@ export default function Toolbar({
             </button>
           ))}
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap flex-shrink-0 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          aria-label="Undo"
+        >
+          元に戻す
+        </button>
+        <button
+          onClick={onRedo}
+          disabled={!canRedo}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap flex-shrink-0 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          aria-label="Redo"
+        >
+          やり直す
+        </button>
       </div>
       <button
         onClick={onDownload}

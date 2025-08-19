@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, Suspense, useRef } from "react";
+import { useState, useTransition, Suspense, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Database } from "@/lib/database.types";
 import type Konva from "konva";
@@ -22,12 +22,41 @@ type EditorProps = {
 export default function Editor({ memo }: EditorProps) {
   const [isPending, startTransition] = useTransition();
   const [title, setTitle] = useState(memo.title);
-  const [drawingData, setDrawingData] = useState<LineData[]>(
-    (memo.drawing_data as LineData[] | null) || []
-  );
+  // Undo/Redoのための履歴管理
+  const [history, setHistory] = useState<LineData[][]>([
+    (memo.drawing_data as LineData[] | null) || [],
+  ]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const drawingData = history[historyIndex]; // 現在の描画データは履歴から取得
+
   const [color, setColor] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(5);
   const stageRef = useRef<Konva.Stage>(null);
+
+  // 描画が変更されたときのハンドラ
+  const handleDrawChange = useCallback((newData: LineData[]) => {
+    // Undoで戻った状態から新しい描画をした場合、それ以降の履歴は削除する
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newData);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [history, historyIndex]);
+
+  // Undo/Redoのハンドラ
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+    }
+  }, [historyIndex]);
+
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+    }
+  }, [history, historyIndex]);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
 
   const handleSave = () => {
     const formData = new FormData();
@@ -91,6 +120,10 @@ export default function Editor({ memo }: EditorProps) {
           strokeWidth={strokeWidth}
           setStrokeWidth={setStrokeWidth}
           onDownload={handleDownload}
+          onUndo={handleUndo}
+          canUndo={canUndo}
+          onRedo={handleRedo}
+          canRedo={canRedo}
         />
         <button onClick={handleSave} disabled={isPending} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
           {isPending ? "保存中..." : "保存"}
@@ -104,7 +137,7 @@ export default function Editor({ memo }: EditorProps) {
           <DrawingCanvas
             ref={stageRef}
             initialData={drawingData}
-            onDrawChange={setDrawingData}
+            onDrawChange={handleDrawChange}
             color={color}
             strokeWidth={strokeWidth}
           />

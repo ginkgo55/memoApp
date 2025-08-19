@@ -27,6 +27,12 @@ const DrawingCanvas = forwardRef<Konva.Stage, DrawingCanvasProps>(
   const isDrawing = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // 親コンポーネントからのデータ変更（Undo/Redoなど）を検知して内部状態を更新
+  useEffect(() => {
+    // initialDataがnullの場合も考慮して空配列をセット
+    setLines(initialData || []);
+  }, [initialData]);
+
   // コンテナのサイズに合わせてキャンバスのサイズを調整
   useEffect(() => {
     const updateSize = () => {
