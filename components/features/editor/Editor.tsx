@@ -4,7 +4,7 @@ import { useState, useTransition, Suspense, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Database } from "@/lib/database.types";
 import type Konva from "konva";
-import { updateMemo, deleteMemo } from "@/app/main/memo/actions";
+import { saveMemoAction, deleteMemoAction } from "@/lib/actions/memoActions";
 import type { LineData } from "./DrawingCanvas";
 import Toolbar from "./Toolbar";
 
@@ -59,19 +59,27 @@ export default function Editor({ memo }: EditorProps) {
   const canRedo = historyIndex < history.length - 1;
 
   const handleSave = () => {
-    const formData = new FormData();
-    formData.append("id", memo.id);
-    formData.append("title", title);
-    formData.append("drawing_data", JSON.stringify(drawingData));
-
     startTransition(async () => {
-      try {
-        await updateMemo(formData);
-        alert("保存しました！");
-      } catch (error) {
-        console.error(error);
-        alert("保存に失敗しました。");
+      const formData = new FormData();
+
+      // 'new'は新規作成時のIDと仮定
+      if (memo.id !== 'new') {
+        formData.append("id", memo.id);
       }
+      formData.append("title", title);
+      formData.append("drawingData", JSON.stringify(drawingData));
+
+      // キャンバスからプレビュー画像を取得
+      if (stageRef.current) {
+        const dataUrl = stageRef.current.toDataURL({
+          mimeType: "image/png",
+          quality: 0.5, // プレビュー用に品質を少し落としてファイルサイズを削減
+          pixelRatio: 0.5 // 解像度も少し落とす
+        });
+        formData.append("previewImage", dataUrl);
+      }
+
+      await saveMemoAction(formData);
     });
   };
 
@@ -80,12 +88,9 @@ export default function Editor({ memo }: EditorProps) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("id", memo.id);
-
     startTransition(async () => {
-      // try...catchを削除。redirect()が正しく動作するようになります。
-      await deleteMemo(formData);
+      // 新しいdeleteMemoActionを呼び出す
+      await deleteMemoAction(memo.id);
     });
   };
 
