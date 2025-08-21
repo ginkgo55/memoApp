@@ -41,14 +41,24 @@ export async function createMemo(formData: FormData) {
   const title = formData.get("title") as string;
 
   // drawing_data は今後のステップで実装します
-  const { error } = await supabase
+  const { data: newMemos, error } = await supabase
     .from("memos")
-    .insert({ title, user_id: user.id });
+    .insert({ title, user_id: user.id })
+    .select();
 
   if (error) throw error;
 
+  if (!newMemos || newMemos.length === 0) {
+    // Handle case where insert succeeded but returned no data
+    // This shouldn't happen in normal circumstances
+    return redirect("/main"); // or some error page
+  }
+
+  const newMemo = newMemos[0];
+
   revalidatePath("/main");
-  redirect("/main");
+  revalidatePath(`/main/memo/${newMemo.id}`);
+  redirect(`/main/memo/${newMemo.id}`);
 }
 
 export async function updateMemo(formData: FormData) {
