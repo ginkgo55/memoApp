@@ -29,10 +29,10 @@ export default function Toolbar({
   canRedo,
 }: ToolbarProps) {
   return (
-    <div className="p-2 bg-gray-200 rounded-md shadow-md flex items-center gap-4 flex-shrink-0">
-      <div>
+    <div className="p-2 bg-gray-200 rounded-md shadow-md flex flex-col sm:flex-row sm:items-center gap-4 flex-shrink-0">
+      <div className="flex items-center flex-wrap">
         <span className="text-sm font-medium mr-2">Color:</span>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {COLORS.map((c) => (
             <button
               key={c}
@@ -46,9 +46,9 @@ export default function Toolbar({
           ))}
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center flex-wrap">
         <span className="text-sm font-medium mr-2">Width:</span>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {STROKE_WIDTHS.map((width) => (
             <button
               key={width}
@@ -64,7 +64,7 @@ export default function Toolbar({
           ))}
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={onUndo}
           disabled={!canUndo}
@@ -81,13 +81,13 @@ export default function Toolbar({
         >
           やり直す
         </button>
+        <button
+          onClick={onDownload}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap flex-shrink-0"
+        >
+          ダウンロード
+        </button>
       </div>
-      <button
-        onClick={onDownload}
-        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap flex-shrink-0"
-      >
-        ダウンロード
-      </button>
     </div>
   );
 }

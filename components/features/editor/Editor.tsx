@@ -112,30 +112,34 @@ export default function Editor({ memo }: EditorProps) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)]">
-      <div className="p-4 bg-gray-100 border-b flex justify-between items-center gap-4">
+      <div className="p-4 bg-gray-100 border-b flex flex-wrap justify-between items-center gap-4">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="text-lg font-semibold bg-transparent border-none focus:ring-0 w-full"
+          className="text-lg font-semibold bg-transparent border-none focus:ring-0 w-full sm:w-auto order-first"
         />
-        <Toolbar
-          color={color}
-          setColor={setColor}
-          strokeWidth={strokeWidth}
-          setStrokeWidth={setStrokeWidth}
-          onDownload={handleDownload}
-          onUndo={handleUndo}
-          canUndo={canUndo}
-          onRedo={handleRedo}
-          canRedo={canRedo}
-        />
-        <button onClick={handleSave} disabled={isPending} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
-          {isPending ? "保存中..." : "保存"}
-        </button>
-        <button onClick={handleDelete} disabled={isPending} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
-          削除
-        </button>
+        <div className="flex items-center gap-4 flex-wrap justify-end">
+          <Toolbar
+            color={color}
+            setColor={setColor}
+            strokeWidth={strokeWidth}
+            setStrokeWidth={setStrokeWidth}
+            onDownload={handleDownload}
+            onUndo={handleUndo}
+            canUndo={canUndo}
+            onRedo={handleRedo}
+            canRedo={canRedo}
+          />
+          <div className="flex items-center gap-2">
+            <button onClick={handleSave} disabled={isPending} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
+              {isPending ? "保存中..." : "保存"}
+            </button>
+            <button onClick={handleDelete} disabled={isPending} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 whitespace-nowrap flex-shrink-0">
+              削除
+            </button>
+          </div>
+        </div>
       </div>
       <div className="flex-grow p-4 bg-gray-50">
         <Suspense fallback={<div className="w-full h-full bg-gray-200 animate-pulse rounded-md"></div>}>
