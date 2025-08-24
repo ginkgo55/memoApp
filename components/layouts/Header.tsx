@@ -18,7 +18,7 @@ export default async function Header() {
           cookiesToSet.forEach(({ name, value, options }) => {
             try {
               cookieStore.set(name, value, options);
-            } catch (error) {
+            } catch {
               // Server Components cannot set cookies.
               // This can be ignored if you have middleware refreshing
               // user sessions.

@@ -1,65 +1,24 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
-import type { Database } from "@/lib/database.types";
 import Editor from "@/components/features/editor/Editor";
 
 type MemoDetailPageProps = {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 };
 
-async function getMemo(params: { id: string }) {
-  // Next.js 15から、ページの`params`はPromiseのようなオブジェクトになりました。
-  // そのため、プロパティにアクセスする前に `await` で解決する必要があります。
-  // @ts-ignore - Next.jsの型定義がこの変更に追いついていないための一時的な措置です。
+export default async function MemoDetailPage({params}: MemoDetailPageProps) {
   const { id } = await params;
+  const supabase = createClient();
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach((cookie) => cookieStore.set(cookie));
-          } catch (error) {
-            // The `setAll` method was called from a Server Component.
-          }
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect("/auth/login");
   }
 
-  const { data: memo, error } = await supabase
-    .from("memos")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id) // 自分のメモだけを取得
-    .single();
-
+  const { data: memo, error } = await supabase.from("memos").select("*").eq("id", id).eq("user_id", user.id).single();
   if (error || !memo) {
     notFound();
   }
-
-  return memo;
-}
-
-export default async function MemoDetailPage({ params }: MemoDetailPageProps) {
-  const memo = await getMemo(params);
 
   return (
     <div>

@@ -3,7 +3,9 @@
 import React, { useState, useRef, useEffect, forwardRef } from "react";
 import { Stage, Layer, Line } from "react-konva";
 import type { KonvaEventObject } from "konva/lib/Node";
-import type Konva from "konva";
+import type { Stage as KonvaStageType } from "konva/lib/Stage";
+
+export type { KonvaStageType as KonvaStage };
 
 // 1本の線のデータを表現する型
 export type LineData = {
@@ -19,7 +21,7 @@ type DrawingCanvasProps = {
   strokeWidth: number;
 };
 
-const DrawingCanvas = forwardRef<Konva.Stage, DrawingCanvasProps>(
+const DrawingCanvas = forwardRef<KonvaStageType, DrawingCanvasProps>(
   ({ initialData, onDrawChange, color, strokeWidth }, ref) => {
   const [lines, setLines] = useState<LineData[]>(initialData || []);
   // コンテナの高さに合わせて動的にサイズを調整
@@ -61,7 +63,7 @@ const DrawingCanvas = forwardRef<Konva.Stage, DrawingCanvasProps>(
     const point = stage?.getPointerPosition();
     if (!point) return;
 
-    let lastLine = lines[lines.length - 1];
+    const lastLine = lines[lines.length - 1];
     lastLine.points = lastLine.points.concat([point.x, point.y]);
 
     const newLines = [...lines];

@@ -20,10 +20,10 @@ const Dialog = ({ children }: { children: React.ReactNode }) => {
   return <DialogContext.Provider value={{ isOpen, onOpenChange: setIsOpen }}>{children}</DialogContext.Provider>;
 };
 
-const DialogTrigger = ({ children, asChild = false }: { children: React.ReactElement<any>; asChild?: boolean }) => {
+const DialogTrigger = ({ children, asChild = false }: { children: React.ReactElement; asChild?: boolean }) => {
   const { onOpenChange } = useDialog();
   if (asChild) {
-    return React.cloneElement(children, { onClick: () => onOpenChange(true) });
+    return React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, { onClick: () => onOpenChange(true) });
   }
   return <button onClick={() => onOpenChange(true)}>{children}</button>;
 };
@@ -52,10 +52,10 @@ const DialogTitle = ({ children, className }: { children: React.ReactNode; class
 const DialogDescription = ({ children, className }: { children: React.ReactNode; className?: string }) => <p className={`text-sm text-gray-600 ${className}`}>{children}</p>;
 const DialogFooter = ({ children, className }: { children: React.ReactNode; className?: string }) => <div className={`mt-6 flex justify-end gap-2 ${className}`}>{children}</div>;
 
-const DialogClose = ({ children, asChild = false }: { children: React.ReactElement<any>; asChild?: boolean }) => {
+const DialogClose = ({ children, asChild = false }: { children: React.ReactElement; asChild?: boolean }) => {
   const { onOpenChange } = useDialog();
   if (asChild) {
-    return React.cloneElement(children, { onClick: () => onOpenChange(false) });
+    return React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, { onClick: () => onOpenChange(false) });
   }
   return <button onClick={() => onOpenChange(false)}>{children}</button>;
 };

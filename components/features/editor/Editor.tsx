@@ -3,9 +3,8 @@
 import { useState, useTransition, Suspense, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Database } from "@/lib/database.types";
-import type Konva from "konva";
 import { saveMemoAction, deleteMemoAction } from "@/lib/actions/memoActions";
-import type { LineData } from "./DrawingCanvas";
+import type { LineData, KonvaStage } from "./DrawingCanvas";
 import Toolbar from "./Toolbar";
 
 const DrawingCanvas = dynamic(() => import("./DrawingCanvas"), {
@@ -31,7 +30,7 @@ export default function Editor({ memo }: EditorProps) {
 
   const [color, setColor] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(5);
-  const stageRef = useRef<Konva.Stage>(null);
+  const stageRef = useRef<KonvaStage>(null);
 
   // 描画が変更されたときのハンドラ
   const handleDrawChange = useCallback((newData: LineData[]) => {
