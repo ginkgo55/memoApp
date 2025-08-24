@@ -1,10 +1,10 @@
-import { createMemo } from "@/app/main/memo/actions";
+import { createMemoFromTitleAction } from "@/lib/actions/memoActions";
 
 export default function NewMemoPage() {
   return (
     <div className="max-w-xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">新しいメモの作成</h1>
-      <form action={createMemo}>
+      <form action={createMemoFromTitleAction}>
         <div className="mb-4">
           <label htmlFor="title" className="block text-gray-700 text-sm font-bold mb-2">
             タイトル

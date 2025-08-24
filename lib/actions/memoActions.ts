@@ -4,6 +4,42 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+/**
+ * 新規作成ページ（タイトルのみ）からのメモ作成アクション
+ * @param formData FormData
+ */
+export async function createMemoFromTitleAction(formData: FormData) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/auth/login");
+  }
+
+  const title = formData.get("title") as string;
+
+  // .single() を使うことで、一件のデータ取得を保証し、配列のチェックが不要になります
+  const { data: newMemo, error } = await supabase
+    .from("memos")
+    .insert({ title, user_id: user.id })
+    .select("id")
+    .single();
+
+  if (error || !newMemo) {
+    console.error("Insert error:", error);
+    // TODO: エラーハンドリングをより丁寧にする（例: エラーページへのリダイレクト）
+    return redirect("/main?error=Failed+to+create+memo");
+  }
+
+  revalidatePath("/main");
+  // 作成したメモのページも再検証
+  revalidatePath(`/main/memo/${newMemo.id}`);
+  redirect(`/main/memo/${newMemo.id}`);
+}
+
 export async function saveMemoAction(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -82,5 +118,5 @@ export async function deleteMemoAction(memoId: string) {
   }
 
   revalidatePath("/main"); // メモ一覧ページを再検証して表示を更新
-  return { success: true, message: "Memo deleted successfully." };
+  redirect("/main");
 }
