@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createMemoFromTitleAction } from "@/lib/actions/memoActions";
 
 export default function NewMemoPage() {
@@ -18,9 +19,9 @@ export default function NewMemoPage() {
           />
         </div>
         <div className="flex items-center justify-end">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <Button type="submit">
             作成
-          </button>
+          </Button>
         </div>
       </form>
     </div>
